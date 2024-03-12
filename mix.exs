@@ -1,7 +1,7 @@
 defmodule PairingHeap.MixProject do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.2.1"
 
   def project do
     [
@@ -25,7 +25,7 @@ defmodule PairingHeap.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.31.2", only: :dev, runtime: false}
     ]
   end
 
