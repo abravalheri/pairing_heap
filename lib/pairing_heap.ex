@@ -93,7 +93,7 @@ defmodule PairingHeap do
   # Lift a function of two key to a function of two Nodes.
   @spec to_node_fn((key(), key() -> boolean())) :: Node.ordered_fn()
   defp to_node_fn(key_fn) do
-    fn %Node{data: {key1, _}}, %Node{data: {key2, _}} ->
+    fn %Node{item: {key1, _}}, %Node{item: {key2, _}} ->
       key_fn.(key1, key2)
     end
   end
@@ -148,7 +148,7 @@ defmodule PairingHeap do
   """
   @spec peek(t()) :: {:ok, pair()} | :error
   def peek(%PairingHeap{root: :empty} = _heap), do: :error
-  def peek(%PairingHeap{root: %Node{data: {key, value}}} = _heap), do: {:ok, {key, value}}
+  def peek(%PairingHeap{root: %Node{item: {key, value}}} = _heap), do: {:ok, {key, value}}
 
   @doc """
   Return the root key-value pair in the heap, as well as the updated heap after
@@ -172,7 +172,7 @@ defmodule PairingHeap do
 
   def pop(
         %PairingHeap{
-          root: %Node{data: {key, value}, children: children},
+          root: %Node{item: {key, value}, children: children},
           size: size,
           ordered?: ordered?
         } = heap
