@@ -14,19 +14,19 @@ defmodule PairingHeap.Node do
 
   defstruct [:data, :children]
 
-  @type data :: any
-  @type ordered_fn :: (t, t -> boolean)
+  @type data() :: any()
+  @type ordered_fn() :: (t(), t() -> boolean())
 
   @type t :: %Node{
-          data: data,
-          children: [t]
+          data: data(),
+          children: [t()]
         }
 
   @doc """
   Create a new pairing-heap node with associated data and a list of zero or
   more child nodes.
   """
-  @spec new(data, [t]) :: t
+  @spec new(data(), [t()]) :: t()
   def new(data, children), do: %Node{data: data, children: children}
 
   @doc """
@@ -37,7 +37,7 @@ defmodule PairingHeap.Node do
   the parent. No other maintenance is required for the individual nodes in a
   pairing heap. It follows that `meld` runs in `O(1)` time.
   """
-  @spec merge(t, t, ordered_fn()) :: t
+  @spec merge(t(), t(), ordered_fn()) :: t()
   def merge(
         %Node{children: children1} = node1,
         %Node{children: children2} = node2,
@@ -57,7 +57,7 @@ defmodule PairingHeap.Node do
   [original paper](https://www.cs.cmu.edu/~sleator/papers/pairing-heaps.pdf),
   which has `O(log n)` amortized run time.
   """
-  @spec merge([t], ordered_fn) :: t
+  @spec merge([t()], ordered_fn()) :: t()
   def merge([node], _ordered?), do: node
   def merge([node1, node2], ordered?), do: merge(node1, node2, ordered?)
 
@@ -76,7 +76,7 @@ defmodule PairingHeap.Node do
   This recuresively searches the children only if the data can be among the
   children according to the heap property.
   """
-  @spec member?(Node.t(), any, Node.ordered_fn()) :: boolean
+  @spec member?(Node.t(), any(), Node.ordered_fn()) :: boolean()
   def member?(node, data, ordered?) do
     do_member?(node, new(data, []), ordered?)
   end

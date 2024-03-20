@@ -15,10 +15,10 @@ defmodule PairingHeap do
 
   alias PairingHeap.Node
 
-  @type key :: any
-  @type value :: any
-  @type pair :: {key, value}
-  @type mode :: :min | :max | {:min, module} | {:max, module}
+  @type key() :: any()
+  @type value() :: any()
+  @type pair() :: {key(), value()}
+  @type mode() :: :min | :max | {:min, module()} | {:max, module()}
 
   @type t :: %PairingHeap{
           root: :empty | Node.t(),
@@ -42,7 +42,7 @@ defmodule PairingHeap do
       iex> PairingHeap.new(:min)
       #PairingHeap<root: :empty, size: 0, mode: :min>
   """
-  @spec new(mode) :: t
+  @spec new(mode()) :: t()
   def new(mode) do
     %PairingHeap{
       root: :empty,
@@ -68,7 +68,7 @@ defmodule PairingHeap do
       iex> PairingHeap.new(:min, [{2, :b}, {1, :a}])
       #PairingHeap<root: {1, :a}, size: 2, mode: :min>
   """
-  @spec new(mode, [pair]) :: t
+  @spec new(mode(), [pair()]) :: t
   def new(mode, []), do: new(mode)
 
   def new(mode, [{_, _} | _] = list) do
@@ -80,7 +80,7 @@ defmodule PairingHeap do
   # Generates the `ordered?` function. If `ordered?.(key1, key2)` is true,
   # then the heap property is satisfied if a node with key `key1` is a parent of
   # a ndoe with key `key2`.
-  @spec to_ordered_fn(mode) :: Node.ordered_fn()
+  @spec to_ordered_fn(mode()) :: Node.ordered_fn()
   defp to_ordered_fn(:min), do: to_node_fn(&<=/2)
   defp to_ordered_fn(:max), do: to_node_fn(&>=/2)
 
@@ -91,7 +91,7 @@ defmodule PairingHeap do
     do: to_node_fn(&(module.compare(&1, &2) != :lt))
 
   # Lift a function of two key to a function of two Nodes.
-  @spec to_node_fn((key, key -> boolean)) :: Node.ordered_fn()
+  @spec to_node_fn((key(), key() -> boolean())) :: Node.ordered_fn()
   defp to_node_fn(key_fn) do
     fn %Node{data: {key1, _}}, %Node{data: {key2, _}} ->
       key_fn.(key1, key2)
@@ -106,7 +106,7 @@ defmodule PairingHeap do
       iex> PairingHeap.new(:min) |> PairingHeap.empty?()
       true
   """
-  @spec empty?(t) :: boolean
+  @spec empty?(t()) :: boolean()
   def empty?(%PairingHeap{root: :empty} = _heap), do: true
   def empty?(%PairingHeap{root: %PairingHeap.Node{}} = _heap), do: false
 
@@ -118,7 +118,7 @@ defmodule PairingHeap do
       iex> PairingHeap.new(:min) |> PairingHeap.put(1, :a)
       #PairingHeap<root: {1, :a}, size: 1, mode: :min>
   """
-  @spec put(t, key, value) :: t
+  @spec put(t(), key(), value()) :: t()
   def put(%PairingHeap{root: :empty, size: 0} = heap, key, value) do
     %{heap | root: Node.new({key, value}, []), size: 1}
   end
@@ -146,7 +146,7 @@ defmodule PairingHeap do
       iex> PairingHeap.new(:min, [{1, :a}]) |> PairingHeap.peek()
       {:ok, {1, :a}}
   """
-  @spec peek(t) :: {:ok, pair} | :error
+  @spec peek(t()) :: {:ok, pair()} | :error
   def peek(%PairingHeap{root: :empty} = _heap), do: :error
   def peek(%PairingHeap{root: %Node{data: {key, value}}} = _heap), do: {:ok, {key, value}}
 
@@ -167,7 +167,7 @@ defmodule PairingHeap do
       iex> heap
       #PairingHeap<root: :empty, size: 0, mode: :min>
   """
-  @spec pop(t) :: {:ok, pair, t} | :error
+  @spec pop(t()) :: {:ok, pair(), t()} | :error
   def pop(%PairingHeap{root: :empty}), do: :error
 
   def pop(
@@ -194,7 +194,7 @@ defmodule PairingHeap do
       iex> PairingHeap.new(:min, [{1, :a}]) |> PairingHeap.size()
       1
   """
-  @spec size(t) :: non_neg_integer()
+  @spec size(t()) :: non_neg_integer()
   def size(%PairingHeap{size: size} = _heap), do: size
 
   @doc """
@@ -213,7 +213,7 @@ defmodule PairingHeap do
       iex> heap
       #PairingHeap<root: {3, :c}, size: 1, mode: :min>
   """
-  @spec pull(t, non_neg_integer) :: {[pair], t}
+  @spec pull(t(), non_neg_integer()) :: {[pair()], t()}
   def pull(heap, n) when is_integer(n) and n >= 0 do
     {data, heap} = pull(heap, n, [])
     {Enum.reverse(data), heap}
@@ -244,7 +244,7 @@ defmodule PairingHeap do
       ...> )
       #PairingHeap<root: {1, :a}, size: 2, mode: :min>
   """
-  @spec merge(t, t) :: t
+  @spec merge(t(), t()) :: t()
   def merge(%PairingHeap{mode: m1}, %PairingHeap{mode: m2}) when m1 != m2 do
     # TODO: Improve this error message
     raise ArgumentError, message: "when merging heaps, the modes must match"
@@ -289,7 +289,7 @@ defmodule PairingHeap do
       iex> heap |> PairingHeap.member?({2, :b})
       true
   """
-  @spec member?(t, pair) :: boolean
+  @spec member?(t(), pair()) :: boolean()
   def member?(%PairingHeap{root: :empty} = _heap, _pair), do: false
 
   def member?(

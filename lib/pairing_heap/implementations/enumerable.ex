@@ -1,9 +1,9 @@
 defimpl Enumerable, for: PairingHeap do
-  @spec count(PairingHeap.t()) :: {:ok, non_neg_integer()} | {:error, module}
+  @spec count(PairingHeap.t()) :: {:ok, non_neg_integer()} | {:error, module()}
   def count(heap), do: {:ok, PairingHeap.size(heap)}
 
   @spec member?(PairingHeap.t(), {PairingHeap.key(), PairingHeap.item()}) ::
-          {:ok, boolean} | {:error, module}
+          {:ok, boolean()} | {:error, module()}
   def member?(heap, {key, item}) do
     {:ok, PairingHeap.member?(heap, {key, item})}
   end
