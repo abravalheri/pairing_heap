@@ -33,23 +33,18 @@ defmodule PairingHeapTest do
     end
 
     test "size after put and pop" do
-      h =
-        PairingHeap.new(:min, [{2, :b}, {2, :a}])
-
+      h = PairingHeap.new(:min, [{2, :b}, {2, :a}])
       {:ok, _, h} = PairingHeap.pop(h)
-
       assert PairingHeap.size(h) == 1
     end
 
     test "error after pop on empty heap" do
       h = PairingHeap.new(:min)
-
       assert PairingHeap.pop(h) == :error
     end
 
     test "peek" do
       h = PairingHeap.new(:min, [{2, :b}, {1, :a}, {3, :c}])
-
       assert {:ok, {1, :a}} = PairingHeap.peek(h)
     end
 
@@ -63,7 +58,6 @@ defmodule PairingHeapTest do
       h1 = PairingHeap.new(:min, [{2, :b}, {1, :a}])
       h2 = PairingHeap.new(:min, [{3, :c}, {4, :d}])
       h = PairingHeap.merge(h1, h2)
-
       assert {:ok, {1, :a}} = PairingHeap.peek(h)
     end
 
@@ -71,20 +65,33 @@ defmodule PairingHeapTest do
       h1 = PairingHeap.new(:min, [{2, :b}, {1, :a}])
       h2 = PairingHeap.new(:min, [{3, :c}, {4, :d}])
       h = PairingHeap.merge([h1, h2])
-
       assert {:ok, {1, :a}} = PairingHeap.peek(h)
     end
 
-    test "membership" do
+    test "meber? non-empty" do
       h = PairingHeap.new(:min, [{2, :b}, {1, :a}])
-
       assert PairingHeap.member?(h, {2, :b})
       assert not PairingHeap.member?(h, {3, :c})
+    end
+
+    test "meber? empty" do
+      h = PairingHeap.new(:min)
+      assert not PairingHeap.member?(h, {1, :a})
     end
 
     test "empty?" do
       h = PairingHeap.new(:max)
       assert PairingHeap.empty?(h)
+    end
+
+    test "dump non-empty" do
+      h = PairingHeap.new(:min, [{2, :b}, {1, :a}])
+      assert [{1, :a}, {2, :b}] == PairingHeap.dump(h)
+    end
+
+    test "dump empty" do
+      h = PairingHeap.new(:min)
+      assert [] == PairingHeap.dump(h)
     end
   end
 
@@ -126,7 +133,6 @@ defmodule PairingHeapTest do
         |> PairingHeap.put(1, :aaa)
 
       {first_three, _} = PairingHeap.pull(h, 3)
-
       assert first_three == [{1, :aaa}, {1, :aa}, {1, :a}]
     end
 
@@ -137,7 +143,6 @@ defmodule PairingHeapTest do
         |> PairingHeap.put(3, :ccc)
 
       {first_three, _} = PairingHeap.pull(h, 3)
-
       assert first_three == [{3, :ccc}, {3, :cc}, {3, :c}]
     end
   end

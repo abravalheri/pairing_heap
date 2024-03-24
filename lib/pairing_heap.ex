@@ -298,4 +298,28 @@ defmodule PairingHeap do
       ) do
     Node.member?(node, pair, ordered?)
   end
+
+  @doc """
+  Return the list of items in the heap.
+
+  While the head of the list will be the item in the root node of the heap,
+  there is not guarantee that the remaining items will be in key order. This
+  funciton runs in `O(n)` time and is faster than repeatedly calling `pop/1`.
+
+  ## Examples
+
+      iex> heap = PairingHeap.new(:min, [{3, :c}, {1, :a}, {2, :b}])
+      iex> PairingHeap.dump(heap)
+      [{1, :a}, {2, :b}, {3, :c}]
+  """
+  @spec dump(t()) :: [pair()]
+  def dump(%PairingHeap{root: :empty}), do: []
+  def dump(%PairingHeap{root: %Node{} = node}), do: Node.dump(node)
+
+  @spec find(t(), pair()) :: {:ok, Node.t(), Node.t()} | :error
+  def find(%PairingHeap{root: :empty} = _heap, _pair), do: :error
+
+  def find(%PairingHeap{root: %Node{} = node, ordered?: ordered?} = _heap, {_, _} = pair) do
+    Node.cut(node, pair, ordered?)
+  end
 end

@@ -72,11 +72,8 @@ defmodule PairingHeap.Node do
   @doc """
   Return `true` if any node in the tree defined by `node` contains `item`, and
   `false` otherwise.
-
-  This recuresively searches the children only if the item can be among the
-  children according to the heap property.
   """
-  @spec member?(Node.t(), any(), Node.ordered_fn()) :: boolean()
+  @spec member?(t(), any(), ordered_fn()) :: boolean()
   def member?(node, item, ordered?) do
     do_member?(node, new(item, []), ordered?)
   end
@@ -91,6 +88,63 @@ defmodule PairingHeap.Node do
 
       true ->
         false
+    end
+  end
+
+  @doc """
+  Return a list of all items in the tree defined by the given node.
+  """
+  @spec dump(t()) :: [item()]
+  def dump(%Node{item: item, children: children}), do: [item | Enum.flat_map(children, &dump/1)]
+
+  @doc """
+  Find the node with the given item in the tree defined by node and cut it
+  from the tree.
+
+  If the item is found, this returns `{:ok, node, parent}`
+
+  NOTE: I don't just want the updated parent, I want the whole tree without the
+  node. I think this means the tree needs to be reconstructed during recursion.
+  Repeated merge during recursion might turn out to be simpler, but will not
+  be cheap if the item is not found.
+
+  Walk through the tree and build it back through repeated merges.
+  """
+  @spec cut(t(), item(), ordered_fn()) :: {:ok, t(), t() | nil} | :error
+  def cut(%Node{item: node_item}, item, _ordered?) when node_item == item,
+    do: {:ok, new(item, []), nil}
+
+  def cut(%Node{children: children} = node, item, ordered?) do
+    do_cut(node, children, new(item, []), ordered?)
+  end
+
+  defp do_cut(_parent, [], _target, _ordered?), do: :error
+
+  defp do_cut(parent, children, target, ordered?) do
+    case do_cut_children([], children, target) do
+      {:ok, front, node, back} ->
+        {:ok, node, %{parent | children: front ++ back}}
+
+      :error ->
+        ordered_nodes = Enum.filter(children, &ordered?.(&1, target))
+        do_cut_ordered(ordered_nodes, target, ordered?)
+    end
+  end
+
+  defp do_cut_children(_front, [], _target), do: :error
+
+  defp do_cut_children(front, [node | rest], target) when node.item == target.item,
+    do: {:ok, front, node, rest}
+
+  defp do_cut_children(front, [node | rest], target),
+    do: do_cut_children([node | front], rest, target)
+
+  defp do_cut_ordered([], _target, _ordered?), do: :error
+
+  defp do_cut_ordered([node | rest], target, ordered?) do
+    case do_cut(node, node.children, target, ordered?) do
+      {:ok, _, _} = result -> result
+      :error -> do_cut_ordered(rest, target, ordered?)
     end
   end
 end
