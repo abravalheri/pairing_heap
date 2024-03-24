@@ -315,11 +315,4 @@ defmodule PairingHeap do
   @spec dump(t()) :: [pair()]
   def dump(%PairingHeap{root: :empty}), do: []
   def dump(%PairingHeap{root: %Node{} = node}), do: Node.dump(node)
-
-  @spec find(t(), pair()) :: {:ok, Node.t(), Node.t()} | :error
-  def find(%PairingHeap{root: :empty} = _heap, _pair), do: :error
-
-  def find(%PairingHeap{root: %Node{} = node, ordered?: ordered?} = _heap, {_, _} = pair) do
-    Node.cut(node, pair, ordered?)
-  end
 end
