@@ -12,22 +12,22 @@ defmodule PairingHeap.Node do
 
   alias __MODULE__, as: Node
 
-  defstruct [:data, :children]
+  defstruct [:item, :children]
 
-  @type data :: any
-  @type ordered_fn :: (t, t -> boolean)
+  @type item() :: any()
+  @type ordered_fn() :: (t(), t() -> boolean())
 
   @type t :: %Node{
-          data: data,
-          children: [t]
+          item: item(),
+          children: [t()]
         }
 
   @doc """
-  Create a new pairing-heap node with associated data and a list of zero or
-  more child nodes.
+  Create a new pairing-heap node with an item and a list of zero or more child
+  nodes.
   """
-  @spec new(data, [t]) :: t
-  def new(data, children), do: %Node{data: data, children: children}
+  @spec new(item(), [t()]) :: t()
+  def new(item, children), do: %Node{item: item, children: children}
 
   @doc """
   Link a pair of nodes into a single node that satisfies the heap property.
@@ -37,7 +37,7 @@ defmodule PairingHeap.Node do
   the parent. No other maintenance is required for the individual nodes in a
   pairing heap. It follows that `meld` runs in `O(1)` time.
   """
-  @spec merge(t, t, ordered_fn()) :: t
+  @spec merge(t(), t(), ordered_fn()) :: t()
   def merge(
         %Node{children: children1} = node1,
         %Node{children: children2} = node2,
@@ -57,7 +57,7 @@ defmodule PairingHeap.Node do
   [original paper](https://www.cs.cmu.edu/~sleator/papers/pairing-heaps.pdf),
   which has `O(log n)` amortized run time.
   """
-  @spec merge([t], ordered_fn) :: t
+  @spec merge([t()], ordered_fn()) :: t()
   def merge([node], _ordered?), do: node
   def merge([node1, node2], ordered?), do: merge(node1, node2, ordered?)
 
@@ -70,20 +70,17 @@ defmodule PairingHeap.Node do
   end
 
   @doc """
-  Return `true` if any node in the tree defined by `node` contains `data`, and
+  Return `true` if any node in the tree defined by `node` contains `item`, and
   `false` otherwise.
-
-  This recuresively searches the children only if the data can be among the
-  children according to the heap property.
   """
-  @spec member?(Node.t(), any, Node.ordered_fn()) :: boolean
-  def member?(node, data, ordered?) do
-    do_member?(node, new(data, []), ordered?)
+  @spec member?(t(), any(), ordered_fn()) :: boolean()
+  def member?(node, item, ordered?) do
+    do_member?(node, new(item, []), ordered?)
   end
 
   defp do_member?(node, node_target, ordered?) do
     cond do
-      node.data == node_target.data ->
+      node.item == node_target.item ->
         true
 
       ordered?.(node, node_target) ->
@@ -93,4 +90,10 @@ defmodule PairingHeap.Node do
         false
     end
   end
+
+  @doc """
+  Return a list of all items in the tree defined by the given node.
+  """
+  @spec dump(t()) :: [item()]
+  def dump(%Node{item: item, children: children}), do: [item | Enum.flat_map(children, &dump/1)]
 end

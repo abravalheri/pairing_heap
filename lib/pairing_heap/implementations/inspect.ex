@@ -23,5 +23,5 @@ defimpl Inspect, for: PairingHeap do
   end
 
   defp extract_root(:empty), do: :empty
-  defp extract_root(%PairingHeap.Node{data: {key, item}}), do: {key, item}
+  defp extract_root(%PairingHeap.Node{item: {key, item}}), do: {key, item}
 end
