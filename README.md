@@ -139,6 +139,17 @@ iex> PairingHeap.merge([heap1, heap2])
 #PairingHeap<root: {1, :a}, size: 2, mode: :min>
 ```
 
+To quickly dump the key-values pairs in the heap without guarantees on the
+ordering, use `PairingHeap.dump/1`:
+
+```elixir
+iex> h = PairingHeap.new(:min, [{2, :b}, {1, :a}, {3, :c}])
+iex> PairingHeap.dump(h)
+[{1, :a}, {3, :c}, {2, :b}]
+```
+
+This is faster than `Enum.to_list/1` (see below).
+
 ## Enumerable and Collectable
 
 `PairingHeap` implements the `Enumerable` and `Collectable` protocols, meaning
